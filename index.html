@@ -1,0 +1,1385 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121216">
+  <title>Ред Флаг</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111115;
+      --bg-soft: #17171d;
+      --panel: #202028;
+      --panel-strong: #282832;
+      --text: #f7f2ee;
+      --muted: #b8b0a8;
+      --line: rgba(255, 255, 255, 0.1);
+      --red: #ff4d57;
+      --green: #3ed07f;
+      --yellow: #ffd25f;
+      --burgundy: #9f1d43;
+      --orange: #ff944d;
+      --blue: #6bb8ff;
+      --accent: var(--red);
+      --accent-soft: rgba(255, 77, 87, 0.15);
+      --shadow: 0 22px 48px rgba(0, 0, 0, 0.34);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      background:
+        linear-gradient(145deg, rgba(255, 77, 87, 0.12), transparent 36%),
+        linear-gradient(235deg, rgba(62, 208, 127, 0.1), transparent 42%),
+        #111115;
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: min(100%, 540px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 18px 14px 28px;
+    }
+
+    .hero {
+      padding: 20px 2px 18px;
+    }
+
+    .hero-topline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      margin-bottom: 10px;
+      color: #ffd9dc;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .signal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--red);
+      box-shadow: 0 0 0 7px rgba(255, 77, 87, 0.13);
+      animation: pulseSignal 2.2s ease-in-out infinite;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--text);
+      font-size: 46px;
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 26rem;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .panel,
+    .result-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(32, 32, 40, 0.9);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel {
+      padding: 14px;
+    }
+
+    .section-label {
+      display: block;
+      margin: 0 0 9px;
+      color: #dfd8d1;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mode-button,
+    .ghost-button,
+    .primary-button,
+    .copy-button {
+      min-height: 48px;
+      border: 0;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition:
+        transform 150ms ease,
+        border-color 150ms ease,
+        background 150ms ease,
+        color 150ms ease,
+        opacity 150ms ease;
+    }
+
+    .mode-button {
+      padding: 10px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: #17171d;
+      color: #ded7cf;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.2;
+      text-align: left;
+    }
+
+    .mode-button[aria-pressed="true"] {
+      border-color: rgba(255, 77, 87, 0.62);
+      background: linear-gradient(180deg, rgba(255, 77, 87, 0.22), rgba(255, 77, 87, 0.1));
+      color: #fff7f8;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .mode-button:active,
+    .primary-button:active,
+    .copy-button:active,
+    .ghost-button:active {
+      transform: scale(0.98);
+    }
+
+    .field-row {
+      display: grid;
+      gap: 12px;
+    }
+
+    .context-select,
+    .input-area {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius);
+      background: #15151b;
+      color: var(--text);
+      outline: 0;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .context-select {
+      min-height: 50px;
+      padding: 0 12px;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #d7d0c8 50%),
+        linear-gradient(135deg, #d7d0c8 50%, transparent 50%);
+      background-position:
+        calc(100% - 20px) 22px,
+        calc(100% - 14px) 22px;
+      background-size: 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .input-area {
+      min-height: 132px;
+      padding: 13px 12px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .context-select:focus,
+    .input-area:focus {
+      border-color: rgba(255, 77, 87, 0.62);
+      background: #181820;
+      box-shadow: 0 0 0 4px rgba(255, 77, 87, 0.12);
+    }
+
+    .input-area.is-listening {
+      border-color: rgba(255, 77, 87, 0.78);
+      box-shadow: 0 0 0 4px rgba(255, 77, 87, 0.16);
+    }
+
+    .voice-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .voice-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: var(--radius);
+      background: #15151b;
+      color: #eee7df;
+      cursor: pointer;
+      font-weight: 850;
+      transition:
+        transform 150ms ease,
+        border-color 150ms ease,
+        background 150ms ease,
+        box-shadow 150ms ease;
+    }
+
+    .voice-button:active {
+      transform: scale(0.98);
+    }
+
+    .voice-button.is-listening {
+      border-color: rgba(255, 77, 87, 0.72);
+      background: linear-gradient(180deg, rgba(255, 77, 87, 0.26), rgba(255, 77, 87, 0.12));
+      box-shadow: 0 12px 22px rgba(255, 77, 87, 0.18);
+    }
+
+    .voice-icon {
+      display: inline-block;
+      font-size: 19px;
+      transform-origin: 50% 100%;
+    }
+
+    .voice-button.is-listening .voice-icon {
+      animation: micBob 720ms ease-in-out infinite;
+    }
+
+    .voice-meter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 70px;
+      min-height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+      background: rgba(0, 0, 0, 0.18);
+      opacity: 0.44;
+      transition: opacity 150ms ease, border-color 150ms ease;
+    }
+
+    .voice-meter span {
+      width: 5px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--red);
+      transform-origin: 50% 100%;
+    }
+
+    .voice-meter.is-active {
+      border-color: rgba(255, 77, 87, 0.5);
+      opacity: 1;
+    }
+
+    .voice-meter.is-active span {
+      animation: voiceBar 680ms ease-in-out infinite;
+    }
+
+    .voice-meter.is-active span:nth-child(2) {
+      animation-delay: 110ms;
+    }
+
+    .voice-meter.is-active span:nth-child(3) {
+      animation-delay: 220ms;
+    }
+
+    .voice-meter.is-active span:nth-child(4) {
+      animation-delay: 330ms;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 0.62fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .primary-button,
+    .copy-button {
+      background: linear-gradient(180deg, #ff626b, #dc2638);
+      color: #fff;
+      font-weight: 900;
+      box-shadow: 0 14px 26px rgba(220, 38, 56, 0.28);
+    }
+
+    .ghost-button {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #15151b;
+      color: #e7dfd7;
+      font-weight: 850;
+    }
+
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .copy-button {
+      background: linear-gradient(180deg, rgba(62, 208, 127, 0.95), #1f9d59);
+      box-shadow: 0 14px 26px rgba(31, 157, 89, 0.18);
+    }
+
+    .copy-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
+    }
+
+    .status {
+      min-height: 22px;
+      margin: 10px 2px 0;
+      color: #bdeccf;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .result-wrap {
+      margin-top: 14px;
+    }
+
+    .result-card {
+      display: none;
+      overflow: hidden;
+      position: relative;
+      padding: 18px;
+      background:
+        linear-gradient(160deg, var(--accent-soft), rgba(32, 32, 40, 0.82) 48%),
+        #202028;
+    }
+
+    .result-card.is-visible {
+      display: block;
+      animation: cardIn 280ms ease both;
+    }
+
+    .result-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      background: var(--accent);
+    }
+
+    .result-head {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .flag-emoji {
+      display: grid;
+      width: 56px;
+      height: 56px;
+      place-items: center;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 34px;
+      animation: flagWave 1.4s ease-in-out infinite;
+    }
+
+    .result-title {
+      margin: 0;
+      color: #fff;
+      font-size: 25px;
+      line-height: 1.08;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .score-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      background: rgba(0, 0, 0, 0.24);
+      color: #fff8ed;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .meter {
+      overflow: hidden;
+      height: 9px;
+      margin: 12px 0 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .meter-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #fff1b8);
+      transition: width 420ms ease 80ms;
+    }
+
+    .result-card.is-visible .meter-fill {
+      width: var(--score-width);
+    }
+
+    .result-block {
+      margin: 0 0 13px;
+      color: #efe8df;
+      font-size: 15px;
+      line-height: 1.48;
+      overflow-wrap: anywhere;
+    }
+
+    .result-block strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #ffffff;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .small-print {
+      margin: 18px 3px 0;
+      color: #a8a099;
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .is-hidden {
+      display: none;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes flagWave {
+      0%,
+      100% {
+        transform: rotate(-3deg) translateY(0);
+      }
+      50% {
+        transform: rotate(4deg) translateY(-2px);
+      }
+    }
+
+    @keyframes pulseSignal {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.86;
+      }
+      50% {
+        transform: scale(1.18);
+        opacity: 1;
+      }
+    }
+
+    @keyframes micBob {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-3deg);
+      }
+      50% {
+        transform: translateY(-2px) rotate(4deg);
+      }
+    }
+
+    @keyframes voiceBar {
+      0%,
+      100% {
+        transform: scaleY(0.58);
+        opacity: 0.62;
+      }
+      50% {
+        transform: scaleY(1.72);
+        opacity: 1;
+      }
+    }
+
+    @media (min-width: 520px) {
+      .app {
+        padding-top: 28px;
+      }
+
+      h1 {
+        font-size: 56px;
+      }
+
+      .mode-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="hero-topline"><span class="signal-dot" aria-hidden="true"></span>детектор бытовой драматургии</div>
+      <h1>Ред Флаг</h1>
+      <p class="subtitle">Проверка людей, поступков и подозрительных переписок</p>
+    </header>
+
+    <section class="panel" aria-label="Проверка">
+      <span class="section-label">Режим</span>
+      <div class="mode-grid" id="modeGrid">
+        <button class="mode-button" type="button" data-mode="action" aria-pressed="true">Проверить поступок</button>
+        <button class="mode-button" type="button" data-mode="phrase" aria-pressed="false">Проверить фразу</button>
+        <button class="mode-button" type="button" data-mode="green" aria-pressed="false">Грин флаг детектор</button>
+        <button class="mode-button" type="button" data-mode="daily" aria-pressed="false">Флаг дня</button>
+        <button class="mode-button" type="button" data-mode="friend" aria-pressed="false">Подруга сказала</button>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <label class="section-label" for="contextSelect">Контекст</label>
+          <select class="context-select" id="contextSelect">
+            <option value="relationships">Отношения</option>
+            <option value="friendship">Дружба</option>
+            <option value="work">Работа</option>
+            <option value="family">Семья</option>
+            <option value="money">Деньги</option>
+            <option value="chat">Переписка</option>
+            <option value="unknown">Не знаю, просто странно</option>
+          </select>
+        </div>
+
+        <div id="inputWrap">
+          <label class="section-label" for="textInput" id="inputLabel">Опиши поступок</label>
+          <textarea class="input-area" id="textInput" maxlength="420" placeholder="Например: он сказал, что бывшая просто подруга, но они ездят вместе на дачу"></textarea>
+          <div class="voice-row is-hidden" id="voiceRow">
+            <button class="voice-button" type="button" id="voiceButton" aria-pressed="false" aria-label="Начать голосовой ввод">
+              <span class="voice-icon" aria-hidden="true">🎙️</span>
+              <span id="voiceButtonText">Сказать голосом</span>
+            </button>
+            <div class="voice-meter" id="voiceMeter" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="primary-button" type="button" id="checkButton">Проверить</button>
+        <button class="ghost-button" type="button" id="clearButton">Очистить</button>
+      </div>
+      <div class="status" id="statusText" aria-live="polite"></div>
+    </section>
+
+    <section class="result-wrap" aria-live="polite">
+      <article class="result-card" id="resultCard">
+        <div class="result-head">
+          <div class="flag-emoji" id="flagEmoji" aria-hidden="true">🚩</div>
+          <div>
+            <h2 class="result-title" id="flagTitle">Ред флаг</h2>
+            <div class="score-pill" id="scorePill">Тревожность: 82%</div>
+          </div>
+        </div>
+        <div class="meter" aria-hidden="true"><div class="meter-fill" id="meterFill"></div></div>
+        <p class="result-block" id="verdictBlock"><strong>Вердикт</strong><span></span></p>
+        <p class="result-block" id="explanationBlock"><strong>Объяснение</strong><span></span></p>
+        <p class="result-block" id="adviceBlock"><strong>Совет</strong><span></span></p>
+      </article>
+
+      <div class="result-actions">
+        <button class="copy-button" type="button" id="againButton">Проверить ещё</button>
+        <button class="ghost-button" type="button" id="copyButton" disabled>Скопировать результат</button>
+      </div>
+    </section>
+
+    <p class="small-print">Это шуточный детектор, а не психолог, суд и не твоя мама. Смотри на контекст и повторяющееся поведение.</p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const modes = {
+        action: {
+          label: "Опиши поступок",
+          placeholder: "Например: он сказал, что бывшая просто подруга, но они ездят вместе на дачу",
+          button: "Проверить"
+        },
+        phrase: {
+          label: "Вставь подозрительную фразу",
+          placeholder: "Например: я не люблю выяснять отношения, просто исчезаю",
+          button: "Проверить фразу"
+        },
+        green: {
+          label: "Опиши хороший поступок или фразу",
+          placeholder: "Например: она сказала, что ей неприятно, но без обвинений",
+          button: "Найти грин флаг"
+        },
+        daily: {
+          label: "",
+          placeholder: "",
+          button: "Вытащить флаг дня"
+        },
+        friend: {
+          label: "Что сказала подруга?",
+          placeholder: "Например: подруга сказала, что он мутный",
+          button: "Спросить оракула"
+        }
+      };
+
+      const flagMeta = {
+        green: { name: "Грин флаг", emoji: "🟢", color: "#3ed07f", soft: "rgba(62, 208, 127, 0.16)" },
+        yellow: { name: "Желтый флаг", emoji: "🟡", color: "#ffd25f", soft: "rgba(255, 210, 95, 0.16)" },
+        red: { name: "Ред флаг", emoji: "🚩", color: "#ff4d57", soft: "rgba(255, 77, 87, 0.17)" },
+        burgundy: { name: "Бордовый флаг", emoji: "🍷", color: "#b02452", soft: "rgba(176, 36, 82, 0.2)" },
+        circus: { name: "Флаг цирка", emoji: "🎪", color: "#ff944d", soft: "rgba(255, 148, 77, 0.16)" },
+        run: { name: "Флаг «Беги, но красиво»", emoji: "🏁", color: "#ff4d57", soft: "rgba(255, 77, 87, 0.2)" },
+        friend: { name: "Флаг подругиного совета", emoji: "🔮", color: "#6bb8ff", soft: "rgba(107, 184, 255, 0.15)" },
+        daily: { name: "Флаг дня", emoji: "📍", color: "#ffd25f", soft: "rgba(255, 210, 95, 0.16)" }
+      };
+
+      const redKeywords = [
+        "врёт", "врет", "обман", "соврал", "соврала", "пропал", "пропала", "исчез", "исчезла",
+        "контролирует", "ревнует", "бывшая", "бывший", "деньги", "должен", "должна",
+        "манипулирует", "молчит", "игнор", "игнорит", "оскорбляет", "запрещает",
+        "проверяет телефон", "телефон проверяет", "тайно", "скрывает", "скрыл", "скрыла",
+        "давит", "шантаж", "угрожает", "виноватит", "газлайт", "обесценивает"
+      ];
+
+      const greenKeywords = [
+        "честно", "спокойно", "поддержал", "поддержала", "поддерживает", "извинился",
+        "извинилась", "уважает", "договорились", "помог", "помогла", "спросил", "спросила",
+        "объяснил", "объяснила", "заботится", "слушает", "выслушал", "выслушала",
+        "признал ошибку", "признала ошибку", "границы", "предупредил", "предупредила", "обсудили"
+      ];
+
+      const overheatKeywords = ["точно", "всегда", "никогда", "срочно бросай", "без вариантов", "сто процентов", "100%"];
+
+      const contextData = {
+        relationships: {
+          label: "Отношения",
+          nudge: "В отношениях важны не спецэффекты, а повторяемость поведения.",
+          advice: "Не делай вывод по одному эпизоду: спроси прямо, посмотри на реакцию и на действия после разговора.",
+          redBonus: 5,
+          greenBonus: 2
+        },
+        friendship: {
+          label: "Дружба",
+          nudge: "В дружбе тревожно, когда тепло появляется только перед просьбой.",
+          advice: "Сверь, есть ли взаимность: поддержка должна ходить в обе стороны, а не только к тебе с авоськой.",
+          redBonus: 2,
+          greenBonus: 3
+        },
+        work: {
+          label: "Работа",
+          nudge: "На работе флаг особенно заметен, если его пытаются назвать корпоративной культурой.",
+          advice: "Фиксируй договоренности письменно и отделяй рабочую обратную связь от личного давления.",
+          redBonus: 6,
+          greenBonus: 1
+        },
+        family: {
+          label: "Семья",
+          nudge: "Семейный контекст любит маскироваться под «мы же родные».",
+          advice: "Границы можно обсуждать спокойно: родство не отменяет уважение и право на паузу.",
+          redBonus: 4,
+          greenBonus: 1
+        },
+        money: {
+          label: "Деньги",
+          nudge: "Когда в кадре деньги, мутность получает премию за лучшую роль второго плана.",
+          advice: "Не стесняйся просить ясные условия, сроки и суммы. Романтика романтикой, а чек лучше сохранить.",
+          redBonus: 8,
+          greenBonus: 0
+        },
+        chat: {
+          label: "Переписка",
+          nudge: "Переписка умеет делать драму из трех точек и одного «ясно».",
+          advice: "Если смысл приходится раскопать как археологию, лучше уточнить словами, а не гадать по паузам.",
+          redBonus: 3,
+          greenBonus: 2
+        },
+        unknown: {
+          label: "Не знаю, просто странно",
+          nudge: "Иногда странно просто странно. Иногда странно уже принесло документы.",
+          advice: "Собери еще пару фактов и не назначай ситуацию главным злодеем сезона слишком рано.",
+          redBonus: 1,
+          greenBonus: 1
+        }
+      };
+
+      const verdicts = {
+        green: [
+          "Человек умеет говорить словами через рот. Редкий экспонат, беречь без фанатизма.",
+          "Это не магия, это базовая адекватность. Но выглядит почти как спецэффект.",
+          "Похоже на здоровый сигнал: спокойно, понятно и без театра теней."
+        ],
+        yellow: [
+          "Не пожар, но дымок уже пишет в общий чат.",
+          "Ситуация не кричит, а выразительно поднимает бровь.",
+          "Пока это не красный сигнал, но внутренний участковый проснулся."
+        ],
+        red: [
+          "Это не просто странно. Это странно с документами.",
+          "Флаг машет так активно, что ему пора выдавать отпускные.",
+          "Тревожность уже не намекает, а садится рядом и просит чай."
+        ],
+        burgundy: [
+          "Ред флаг прошел стажировку, получил повышение и стал бордовым.",
+          "Тут уже не «поговорить бы», а «поговорить бы при включенном здравом смысле».",
+          "Ситуация пахнет драмой, но приложение просит не устраивать финал до проверки фактов."
+        ],
+        circus: [
+          "Где-то заиграла арена, но билет покупать необязательно.",
+          "Поступок выглядит как номер без страховки и с уверенным лицом.",
+          "Это уже не флаг, это афиша. Но финальный диагноз пока не продаем."
+        ],
+        run: [
+          "Красиво выйти из чата тоже искусство.",
+          "Если соберешься бежать, не забудь самообладание и зарядку для телефона.",
+          "Пауза, дистанция и ясные границы выглядят тут лучше, чем героическое терпение."
+        ]
+      };
+
+      const explanations = {
+        green: [
+          "Во вводе есть признаки уважения, ясности или готовности договариваться.",
+          "Похоже на поведение, где человеку важны и свои чувства, и твои границы.",
+          "Сигнал скорее здоровый: меньше манипуляций, больше понятных действий."
+        ],
+        yellow: [
+          "Признаки неоднозначные: может быть контекст, усталость или плохая коммуникация.",
+          "Тревожных слов немного, но ситуация просит уточнений, а не сценариев в голове.",
+          "Есть легкая мутность: не игнорируй ее, но и не разгоняй драму без фактов."
+        ],
+        red: [
+          "В ситуации есть слова или действия, похожие на контроль, скрытность, давление или исчезновения.",
+          "Алгоритм увидел несколько тревожных маркеров, которые лучше не списывать на «такой характер».",
+          "Похоже на поведение, где ясности меньше, чем хотелось бы, а напряжения больше нормы."
+        ],
+        burgundy: [
+          "Тревожных признаков много: тут важно смотреть не на обещания, а на повторяющийся рисунок поведения.",
+          "Ситуация выглядит плотнее обычного ред флага: есть шанс, что проблема системная.",
+          "Когда сразу несколько сигналов складываются в узор, лучше не спорить с собственным дискомфортом."
+        ],
+        circus: [
+          "Ввод звучит как хаотичная смесь странности, оправданий и бытового перформанса.",
+          "Тут может быть недопонимание, но градус театральности уже заметен без бинокля.",
+          "Ситуация не обязательно опасная, но определенно просит ясности и спокойного разговора."
+        ],
+        run: [
+          "Слишком много признаков давления, контроля или исчезновений. Это повод защитить себя и сбавить вовлеченность.",
+          "Когда тревожных маркеров много, безопаснее сначала вернуть себе опору, а уже потом обсуждать детали.",
+          "Это не приказ к панике, а напоминание: дистанция иногда полезнее очередной попытки все объяснить."
+        ]
+      };
+
+      const generalAdvice = {
+        green: [
+          "Цени такое, но не идеализируй: здоровые люди тоже устают, ошибаются и забывают купить хлеб.",
+          "Поддержи хороший паттерн: скажи, что тебе это важно, и смотри, сохраняется ли он дальше.",
+          "Не превращай один хороший поступок в корону. Просто отметь, что это приятно и нормально."
+        ],
+        yellow: [
+          "Задай один спокойный вопрос и посмотри, станет ли яснее или начнется чемпионат по уходу от ответа.",
+          "Лучше уточнить контекст, чем додумывать ночью третий сезон внутреннего сериала.",
+          "Не обвиняй с порога. Скажи, что именно смутило, и проверь, готов ли человек обсуждать."
+        ],
+        red: [
+          "Не устраивай допрос. Обозначь факт, чувство и границу, а потом смотри на действия.",
+          "Если это повторяется, не спорь с калькулятором реальности: паттерн важнее красивых объяснений.",
+          "Сохраняй спокойствие и не доказывай, что тебе можно верить, если проблема в чужом контроле."
+        ],
+        burgundy: [
+          "Снизь скорость сближения, проверь факты и не отдавай человеку пульт от своего спокойствия.",
+          "Поговори, но заранее реши, какая реакция для тебя неприемлема.",
+          "Если есть давление или унижение, поддержка друзей и дистанция могут быть важнее очередного разговора."
+        ],
+        circus: [
+          "Смейся аккуратно, но границы держи серьезно. Комедия комедией, а нервная система одна.",
+          "Попроси конкретику. Цирк обычно не любит простые вопросы вроде «что именно ты имеешь в виду?».",
+          "Не покупай билет на драму, где тебя не спросили, хочешь ли ты участвовать."
+        ],
+        run: [
+          "Выбирай безопасную дистанцию, говори коротко и не втягивайся в спор, где правила меняются на ходу.",
+          "Если чувствуешь угрозу или давление, обратись к людям, которым доверяешь, и не оставайся с этим в одиночку.",
+          "Самое взрослое решение иногда звучит скучно: пауза, границы, факты, поддержка."
+        ]
+      };
+
+      const translations = {
+        red: [
+          "человек оставляет людей в подвешенном состоянии и называет это личными границами.",
+          "за красивой формулировкой может прятаться нежелание брать ответственность за последствия.",
+          "слова пытаются выглядеть взросло, но поведение просит отдельную проверку."
+        ],
+        yellow: [
+          "возможно, человек не умеет формулировать мягче, но тебе не обязано быть удобно от этой неловкости.",
+          "смысл фразы зависит от действий после нее, а не от интонации и трех скобочек.",
+          "это может быть честность, а может быть заранее подготовленная отмазка. Нужен контекст."
+        ],
+        green: [
+          "человек пытается говорить прямо, не устраивая эмоциональный квест.",
+          "фраза похожа на желание договориться, а не победить в споре.",
+          "звучит как попытка объяснить себя и оставить место для твоей реакции."
+        ]
+      };
+
+      const phraseFlags = {
+        green: ["Грин флаг с человеческим лицом", "Зеленый, размер «можно обсуждать»", "Грин флаг без драматической музыки"],
+        yellow: ["Желтый флаг с прищуром", "Желтый, размер M", "Флаг «надо уточнить»"],
+        red: ["Красный, размер XXL", "Ред флаг с доставкой", "Красный флаг на максималках"]
+      };
+
+      const dailyFlags = [
+        "Не путай заботу с контролем. Забота спрашивает, контроль требует пароль.",
+        "Если все надо угадывать, это не романтика, а квест без карты.",
+        "Грин флаг, когда человек умеет извиняться без слова «но».",
+        "Если человек пропадает на три дня, а потом пишет «приветик», это не интрига, это техподдержка без SLA.",
+        "Сегодня полезно верить не обещаниям, а календарю выполненных действий.",
+        "Не каждый холодный ответ означает катастрофу. Иногда люди просто заняты, иногда правда мутят. Смотри на паттерн.",
+        "Хороший знак: после сложного разговора стало понятнее, а не страшнее.",
+        "Если тебя заставляют доказывать очевидное, сделай паузу и выпей воды."
+      ];
+
+      const friendVerdicts = [
+        "Подруга, возможно, права на {score}%.",
+        "Оракул подруги сработал примерно на {score}%.",
+        "Подруга попала в район истины на {score}%."
+      ];
+
+      const friendOverheat = [
+        "но приложение напоминает: подруга тоже человек, а не Верховный суд отношений.",
+        "но интонация подруги не заменяет факты, даже если она говорит очень уверенно.",
+        "но иногда забота подруги надевает драматичный плащ и переигрывает."
+      ];
+
+      const friendCheck = [
+        "Проверь факты, повторяемость и свою реакцию, а не только выражение лица в момент рассказа.",
+        "Спроси себя: что именно было странным, как часто это повторяется и можно ли это спокойно обсудить.",
+        "Возьми совет как гипотезу, а не как приговор. Дальше нужны наблюдения и разговор."
+      ];
+
+      const elements = {
+        modeGrid: document.getElementById("modeGrid"),
+        modeButtons: [...document.querySelectorAll(".mode-button")],
+        contextSelect: document.getElementById("contextSelect"),
+        inputWrap: document.getElementById("inputWrap"),
+        inputLabel: document.getElementById("inputLabel"),
+        textInput: document.getElementById("textInput"),
+        voiceRow: document.getElementById("voiceRow"),
+        voiceButton: document.getElementById("voiceButton"),
+        voiceButtonText: document.getElementById("voiceButtonText"),
+        voiceMeter: document.getElementById("voiceMeter"),
+        checkButton: document.getElementById("checkButton"),
+        clearButton: document.getElementById("clearButton"),
+        statusText: document.getElementById("statusText"),
+        resultCard: document.getElementById("resultCard"),
+        flagEmoji: document.getElementById("flagEmoji"),
+        flagTitle: document.getElementById("flagTitle"),
+        scorePill: document.getElementById("scorePill"),
+        meterFill: document.getElementById("meterFill"),
+        verdictBlock: document.getElementById("verdictBlock"),
+        explanationBlock: document.getElementById("explanationBlock"),
+        adviceBlock: document.getElementById("adviceBlock"),
+        againButton: document.getElementById("againButton"),
+        copyButton: document.getElementById("copyButton")
+      };
+
+      let currentMode = localStorage.getItem("redFlagMode") || "action";
+      let lastResultText = "";
+      let rollCounter = 0;
+      let recognition = null;
+      let isListening = false;
+      let voiceEndMessage = "";
+
+      const savedContext = localStorage.getItem("redFlagContext");
+      if (savedContext && contextData[savedContext]) {
+        elements.contextSelect.value = savedContext;
+      }
+
+      function setVoiceState(active, message) {
+        isListening = active;
+        elements.voiceButton.classList.toggle("is-listening", active);
+        elements.voiceMeter.classList.toggle("is-active", active);
+        elements.textInput.classList.toggle("is-listening", active);
+        elements.voiceButton.setAttribute("aria-pressed", String(active));
+        elements.voiceButton.setAttribute("aria-label", active ? "Остановить голосовой ввод" : "Начать голосовой ввод");
+        elements.voiceButtonText.textContent = active ? "Слушаю..." : "Сказать голосом";
+        if (message) {
+          elements.statusText.textContent = message;
+        }
+      }
+
+      function appendVoiceText(text) {
+        const transcript = text.replace(/\s+/g, " ").trim();
+        if (!transcript) return;
+        const maxLength = Number(elements.textInput.getAttribute("maxlength")) || 420;
+        const current = elements.textInput.value.trim();
+        const next = `${current}${current ? " " : ""}${transcript}`.slice(0, maxLength);
+        elements.textInput.value = next;
+      }
+
+      function stopVoiceInput(message) {
+        if (!recognition || !isListening) return;
+        voiceEndMessage = message || "Голосовой ввод остановлен.";
+        try {
+          recognition.stop();
+        } catch (error) {
+          setVoiceState(false, voiceEndMessage);
+          voiceEndMessage = "";
+        }
+      }
+
+      function setupVoiceInput() {
+        const SpeechRecognitionConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognitionConstructor) {
+          elements.voiceRow.classList.add("is-hidden");
+          return;
+        }
+
+        elements.voiceRow.classList.remove("is-hidden");
+        recognition = new SpeechRecognitionConstructor();
+        recognition.lang = "ru-RU";
+        recognition.interimResults = true;
+        recognition.continuous = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+          setVoiceState(true, "Слушаю. Говори ситуацию, а детектор делает вид, что он серьезный прибор.");
+        };
+
+        recognition.onresult = (event) => {
+          let finalTranscript = "";
+          let interimTranscript = "";
+
+          for (let index = event.resultIndex; index < event.results.length; index += 1) {
+            const transcript = event.results[index][0].transcript;
+            if (event.results[index].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          if (finalTranscript) {
+            appendVoiceText(finalTranscript);
+          }
+
+          if (interimTranscript.trim()) {
+            elements.statusText.textContent = `Слышу: ${interimTranscript.trim()}`;
+          }
+        };
+
+        recognition.onerror = (event) => {
+          const messages = {
+            "not-allowed": "Микрофон не разрешили. Ничего страшного: клавиатура тоже умеет в драму.",
+            "service-not-allowed": "Браузер не дал включить распознавание речи. Остается старый добрый текст.",
+            "no-speech": "Я внимательно слушал, но услышал тишину с характером.",
+            "audio-capture": "Не вижу доступный микрофон. Возможно, он ушел от красных флагов раньше нас."
+          };
+          setVoiceState(false, messages[event.error] || "Голосовой ввод споткнулся. Можно попробовать еще раз или написать текстом.");
+          voiceEndMessage = "";
+        };
+
+        recognition.onend = () => {
+          if (!isListening) return;
+          const fallback = elements.textInput.value.trim()
+            ? "Голос добавлен в поле. Можно проверять."
+            : "Запись закончилась, но текст не появился. Попробуй еще раз чуть ближе к микрофону.";
+          setVoiceState(false, voiceEndMessage || fallback);
+          voiceEndMessage = "";
+        };
+      }
+
+      function toggleVoiceInput() {
+        if (!recognition) {
+          elements.statusText.textContent = "Этот браузер не поддерживает голосовой ввод. Но поле ввода на месте.";
+          return;
+        }
+
+        if (currentMode === "daily") {
+          elements.statusText.textContent = "Для «Флага дня» голос не нужен: там судьба сама жмет кнопку.";
+          return;
+        }
+
+        if (isListening) {
+          stopVoiceInput("Остановила запись. Если успела расслышать, текст уже в поле.");
+          return;
+        }
+
+        voiceEndMessage = "";
+        setVoiceState(true, "Запрашиваю доступ к микрофону...");
+        try {
+          recognition.start();
+        } catch (error) {
+          setVoiceState(false, "Браузер уже занят голосовым вводом. Подожди секунду и попробуй еще раз.");
+        }
+      }
+
+      function normalize(value) {
+        return value.toLocaleLowerCase("ru-RU").replace(/\s+/g, " ").trim();
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function hashString(value) {
+        let hash = 2166136261;
+        for (let i = 0; i < value.length; i += 1) {
+          hash ^= value.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return hash >>> 0;
+      }
+
+      function createRandom(seedText) {
+        let seed = hashString(`${seedText}|${rollCounter}|${Date.now()}`);
+        return () => {
+          seed += 0x6d2b79f5;
+          let value = seed;
+          value = Math.imul(value ^ (value >>> 15), value | 1);
+          value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+          return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function pick(list, random) {
+        return list[Math.floor(random() * list.length)];
+      }
+
+      function countHits(text, keywords) {
+        return keywords.filter((keyword) => text.includes(keyword));
+      }
+
+      function analyze(text, mode, contextKey, random) {
+        const clean = normalize(text);
+        const context = contextData[contextKey];
+        const redHits = countHits(clean, redKeywords);
+        const greenHits = countHits(clean, greenKeywords);
+        const overheats = countHits(clean, overheatKeywords);
+        const hasQuestion = clean.includes("?") || clean.includes("почему") || clean.includes("как так");
+        const neutralBase = redHits.length === 0 && greenHits.length === 0 ? Math.floor(28 + random() * 42) : 38;
+        const noise = Math.floor(random() * 17) - 8;
+        const danger = clamp(
+          neutralBase + redHits.length * 17 - greenHits.length * 11 + overheats.length * 5 + context.redBonus + noise,
+          4,
+          98
+        );
+        const adequacy = clamp(
+          48 + greenHits.length * 17 - redHits.length * 10 + context.greenBonus + (hasQuestion ? 4 : 0) + noise,
+          3,
+          98
+        );
+
+        return { clean, redHits, greenHits, overheats, danger, adequacy };
+      }
+
+      function decideActionFlag(analysis, random) {
+        if (analysis.greenHits.length >= 2 && analysis.redHits.length === 0) return "green";
+        if (analysis.redHits.length >= 4 && analysis.danger >= 78) return random() > 0.5 ? "run" : "burgundy";
+        if (analysis.danger >= 89) return "run";
+        if (analysis.danger >= 76) return "burgundy";
+        if (analysis.danger >= 62) return random() > 0.76 ? "circus" : "red";
+        if (analysis.danger >= 41) return random() > 0.82 ? "circus" : "yellow";
+        return "green";
+      }
+
+      function buildActionResult(text, contextKey) {
+        const random = createRandom(`${currentMode}|${contextKey}|${text}`);
+        const analysis = analyze(text, currentMode, contextKey, random);
+        const key = decideActionFlag(analysis, random);
+        const meta = flagMeta[key];
+        const context = contextData[contextKey];
+        const scoreLabel = key === "green" ? "Адекватность" : key === "yellow" ? "Мутность" : "Тревожность";
+        const score = key === "green" ? clamp(100 - analysis.danger + analysis.greenHits.length * 5, 38, 97) : analysis.danger;
+
+        return {
+          meta,
+          score,
+          scoreText: `${scoreLabel}: ${score}%`,
+          verdict: pick(verdicts[key], random),
+          explanation: `${pick(explanations[key], random)} ${context.nudge}`,
+          advice: `${pick(generalAdvice[key], random)} ${context.advice}`
+        };
+      }
+
+      function buildPhraseResult(text, contextKey) {
+        const random = createRandom(`${currentMode}|${contextKey}|${text}`);
+        const analysis = analyze(text, currentMode, contextKey, random);
+        const context = contextData[contextKey];
+        let tone = "yellow";
+        if (analysis.greenHits.length > analysis.redHits.length && analysis.adequacy > 58) tone = "green";
+        if (analysis.redHits.length > 0 && analysis.danger > 58) tone = "red";
+        const meta = {
+          ...flagMeta[tone],
+          name: pick(phraseFlags[tone], random)
+        };
+        const score = tone === "green" ? analysis.adequacy : analysis.danger;
+
+        return {
+          meta,
+          score,
+          scoreText: tone === "green" ? `Адекватность фразы: ${score}%` : `Риск подвоха: ${score}%`,
+          verdict: tone === "green" ? pick(verdicts.green, random) : tone === "red" ? pick(verdicts.red, random) : pick(verdicts.yellow, random),
+          explanationLabel: "Перевод с человеческого",
+          explanation: `${pick(translations[tone], random)} ${context.nudge}`,
+          advice: `${tone === "red" ? pick(generalAdvice.red, random) : pick(generalAdvice.yellow, random)} ${context.advice}`
+        };
+      }
+
+      function buildGreenResult(text, contextKey) {
+        const random = createRandom(`${currentMode}|${contextKey}|${text}`);
+        const analysis = analyze(text, currentMode, contextKey, random);
+        const context = contextData[contextKey];
+        const score = clamp(analysis.adequacy + 22 - analysis.redHits.length * 8, 18, 99);
+        const meta = score > 74 ? flagMeta.green : score > 48 ? flagMeta.yellow : flagMeta.circus;
+        const weakNote = score > 74
+          ? "Похоже на грин флаг: есть ясность, уважение или готовность к диалогу."
+          : "Хорошее намерение возможно, но приложение видит неоднозначность. Не спеши ставить памятник.";
+
+        return {
+          meta: { ...meta, name: score > 74 ? "Грин флаг" : meta.name },
+          score,
+          scoreText: `Уровень адекватности: ${score}%`,
+          verdict: score > 74 ? pick(verdicts.green, random) : pick(verdicts.yellow, random),
+          explanation: `${weakNote} ${context.nudge}`,
+          advice: `Цени такое, но не идеализируй. ${context.advice}`
+        };
+      }
+
+      function buildDailyResult(contextKey) {
+        const random = createRandom(`${currentMode}|${contextKey}|daily`);
+        const context = contextData[contextKey];
+        const score = Math.floor(58 + random() * 39);
+        const text = pick(dailyFlags, random);
+
+        return {
+          meta: flagMeta.daily,
+          score,
+          scoreText: `Драматичность дня: ${score}%`,
+          verdict: `Сегодня твой флаг: ${text}`,
+          explanation: context.nudge,
+          advice: context.advice
+        };
+      }
+
+      function buildFriendResult(text, contextKey) {
+        const random = createRandom(`${currentMode}|${contextKey}|${text}`);
+        const analysis = analyze(text, currentMode, contextKey, random);
+        const context = contextData[contextKey];
+        const score = clamp(50 + analysis.redHits.length * 11 - analysis.overheats.length * 7 + Math.floor(random() * 23) - 8, 22, 94);
+
+        return {
+          meta: flagMeta.friend,
+          score,
+          scoreText: `Вероятность попадания: ${score}%`,
+          verdict: pick(friendVerdicts, random).replace("{score}", score),
+          explanationLabel: "Где может быть перегиб",
+          explanation: `${pick(friendOverheat, random)} ${context.nudge}`,
+          adviceLabel: "Что проверить самому",
+          advice: `${pick(friendCheck, random)} ${context.advice}`
+        };
+      }
+
+      function buildEmptyResult(contextKey) {
+        const random = createRandom(`empty|${currentMode}|${contextKey}`);
+        const meta = flagMeta.yellow;
+        const score = Math.floor(33 + random() * 28);
+        return {
+          meta,
+          score,
+          scoreText: `Мутность пустого поля: ${score}%`,
+          verdict: "Детектор посмотрел в пустоту и вежливо попросил хоть немного драмы.",
+          explanation: "Без текста можно проверить только тишину. Тишина, кстати, пока нейтральная.",
+          advice: "Напиши ситуацию одной-двумя фразами. Чем конкретнее ввод, тем смешнее и точнее вердикт."
+        };
+      }
+
+      function makeResult() {
+        rollCounter += 1;
+        const contextKey = elements.contextSelect.value;
+        const text = elements.textInput.value.trim();
+
+        if (currentMode === "daily") return buildDailyResult(contextKey);
+        if (!text) return buildEmptyResult(contextKey);
+        if (currentMode === "phrase") return buildPhraseResult(text, contextKey);
+        if (currentMode === "green") return buildGreenResult(text, contextKey);
+        if (currentMode === "friend") return buildFriendResult(text, contextKey);
+        return buildActionResult(text, contextKey);
+      }
+
+      function setBlock(block, label, text) {
+        const strong = block.querySelector("strong");
+        const span = block.querySelector("span");
+        strong.textContent = label;
+        span.textContent = text;
+      }
+
+      function renderResult(result) {
+        const { meta } = result;
+        elements.resultCard.classList.remove("is-visible");
+        elements.resultCard.style.setProperty("--accent", meta.color);
+        elements.resultCard.style.setProperty("--accent-soft", meta.soft);
+        elements.resultCard.style.setProperty("--score-width", `${result.score}%`);
+        elements.flagEmoji.textContent = meta.emoji;
+        elements.flagTitle.textContent = meta.name;
+        elements.scorePill.textContent = result.scoreText;
+        elements.meterFill.style.width = "0%";
+        setBlock(elements.verdictBlock, "Вердикт", result.verdict);
+        setBlock(elements.explanationBlock, result.explanationLabel || "Объяснение", result.explanation);
+        setBlock(elements.adviceBlock, result.adviceLabel || "Совет", result.advice);
+
+        requestAnimationFrame(() => {
+          elements.resultCard.classList.add("is-visible");
+          elements.meterFill.style.width = `${result.score}%`;
+        });
+
+        lastResultText = [
+          `Ред Флаг`,
+          `${meta.emoji} ${meta.name}`,
+          result.scoreText,
+          `Вердикт: ${result.verdict}`,
+          `${result.explanationLabel || "Объяснение"}: ${result.explanation}`,
+          `${result.adviceLabel || "Совет"}: ${result.advice}`
+        ].join("\n");
+        elements.copyButton.disabled = false;
+        elements.statusText.textContent = "";
+      }
+
+      function switchMode(mode) {
+        if (!modes[mode]) return;
+        if (isListening) {
+          stopVoiceInput("Голосовой ввод остановлен при смене режима.");
+        }
+        currentMode = mode;
+        localStorage.setItem("redFlagMode", mode);
+        elements.modeButtons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
+        });
+
+        const config = modes[mode];
+        elements.inputLabel.textContent = config.label;
+        elements.textInput.placeholder = config.placeholder;
+        elements.checkButton.textContent = config.button;
+        elements.inputWrap.classList.toggle("is-hidden", mode === "daily");
+        elements.statusText.textContent = "";
+      }
+
+      async function copyResult() {
+        if (!lastResultText) return;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(lastResultText);
+          } else {
+            const temporary = document.createElement("textarea");
+            temporary.value = lastResultText;
+            temporary.setAttribute("readonly", "");
+            temporary.style.position = "fixed";
+            temporary.style.opacity = "0";
+            document.body.appendChild(temporary);
+            temporary.select();
+            document.execCommand("copy");
+            temporary.remove();
+          }
+          elements.statusText.textContent = "Результат скопирован. Можно нести в чат, но без приговора.";
+        } catch (error) {
+          elements.statusText.textContent = "Не получилось скопировать автоматически. Выдели текст карточки вручную.";
+        }
+      }
+
+      function clearAll() {
+        if (isListening) {
+          stopVoiceInput("Голосовой ввод остановлен, поле очищено.");
+        }
+        elements.textInput.value = "";
+        elements.resultCard.classList.remove("is-visible");
+        elements.copyButton.disabled = true;
+        lastResultText = "";
+        elements.statusText.textContent = "Очищено. Драма отправлена на проветривание.";
+        if (currentMode !== "daily") {
+          elements.textInput.focus();
+        }
+      }
+
+      elements.modeGrid.addEventListener("click", (event) => {
+        const button = event.target.closest(".mode-button");
+        if (!button) return;
+        switchMode(button.dataset.mode);
+      });
+
+      elements.contextSelect.addEventListener("change", () => {
+        localStorage.setItem("redFlagContext", elements.contextSelect.value);
+      });
+
+      elements.checkButton.addEventListener("click", () => {
+        renderResult(makeResult());
+      });
+
+      elements.againButton.addEventListener("click", () => {
+        renderResult(makeResult());
+      });
+
+      elements.clearButton.addEventListener("click", clearAll);
+      elements.copyButton.addEventListener("click", copyResult);
+      elements.voiceButton.addEventListener("click", toggleVoiceInput);
+
+      elements.textInput.addEventListener("keydown", (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+          renderResult(makeResult());
+        }
+      });
+
+      setupVoiceInput();
+      switchMode(currentMode);
+    })();
+  </script>
+</body>
+</html>
